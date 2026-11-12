@@ -161,6 +161,12 @@ public class MainActivity extends Activity {
             return arr.toString();
         }
 
+        /** Versienummer van de app. */
+        @JavascriptInterface
+        public String getVersion() {
+            return BuildConfig.VERSION_NAME;
+        }
+
         /** Zichtbare afmeting van de weergave in CSS-pixels. */
         @JavascriptInterface
         public String getViewport() {

@@ -10,14 +10,34 @@ android {
         applicationId = 'nl.nova.home'
         minSdk = 23
         targetSdk = 34
-        versionCode = 1
-        versionName = '1.0'
+        // Elke build op GitHub krijgt een hoger versienummer, zodat updates altijd installeren.
+        def run = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer
+        versionCode = run
+        versionName = "1.1.${run}"
+    }
+
+    // Vaste sleutel: daardoor kan een nieuwe versie over de oude heen worden geïnstalleerd.
+    signingConfigs {
+        nova {
+            storeFile = file('nova.keystore')
+            storePassword = 'novahome'
+            keyAlias = 'nova'
+            keyPassword = 'novahome'
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.nova
+        }
         release {
             minifyEnabled = false
+            signingConfig = signingConfigs.nova
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     compileOptions {

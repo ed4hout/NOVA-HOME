@@ -132,7 +132,7 @@
 <div id="stage">
 
   <div id="top">
-    <div id="brand">NOVA<small>HOME INTERFACE v1.0</small></div>
+    <div id="brand">NOVA<small id="ver">HOME INTERFACE v1.1</small></div>
     <div class="spacer"></div>
     <div class="chip" id="last">LAATST: —</div>
     <div class="chip"><span class="dot" id="netdot"></span><span id="net">NETWERK ONLINE</span></div>
@@ -524,6 +524,11 @@ if (!ON_TV) APPS.forEach(function(t, i){
   document.getElementById('st' + i).textContent = t.name.toUpperCase();
 });
 log('modules: klok, atmosfeer, streaming, ingangen');
+if (P === 'android'){
+  try { document.getElementById('ver').textContent = 'HOME INTERFACE v' + Nova.getVersion(); } catch(e){}
+  var vs = viewSize();
+  log('scherm: ' + Math.round(vs.w) + 'x' + Math.round(vs.h) + ' (venster ' + window.innerWidth + 'x' + window.innerHeight + ')');
+}
 resolveApps();
 loadWeather(); setInterval(loadWeather, 10 * 60 * 1000);
 </script>
