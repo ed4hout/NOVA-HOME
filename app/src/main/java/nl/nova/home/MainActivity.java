@@ -12,6 +12,8 @@ import android.graphics.drawable.Drawable;
 import android.media.tv.TvContract;
 import android.media.tv.TvInputInfo;
 import android.media.tv.TvInputManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Base64;
@@ -60,6 +62,7 @@ public class MainActivity extends Activity {
 
         setContentView(web);
         web.loadUrl("file:///android_asset/index.html");
+        NovaService.start(this, false);
         web.requestFocus();
     }
 
@@ -215,16 +218,10 @@ public class MainActivity extends Activity {
                     TvContract.buildChannelUriForPassthroughInput(inputId)));
         }
 
-        /** Staat de startscherm-modus (toegankelijkheidsdienst) aan? */
+        /** Staat de startscherm-modus aan (toestemming "Weergeven boven andere apps")? */
         @JavascriptInterface
         public boolean isAutostartOn() {
-            try {
-                String on = Settings.Secure.getString(getContentResolver(),
-                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-                return on != null && on.contains(getPackageName() + "/");
-            } catch (Exception e) {
-                return false;
-            }
+            return Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(MainActivity.this);
         }
 
         /** Vaste acties: "settings", "googletv", "autostart" en "livetv". */
@@ -234,13 +231,14 @@ public class MainActivity extends Activity {
                 return start(new Intent(Settings.ACTION_SETTINGS));
             }
             if ("googletv".equals(what)) {
-                NovaWatcher.bypass = true;
                 Intent h = new Intent(Intent.ACTION_MAIN);
                 h.addCategory(Intent.CATEGORY_HOME);
                 return start(h);
             }
             if ("autostart".equals(what)) {
-                return start(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                if (start(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName())))) return true;
+                return start(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION));
             }
             if ("livetv".equals(what)) {
                 // Sony's eigen tv-app; anders het algemene kanalenoverzicht.

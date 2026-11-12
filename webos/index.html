@@ -444,7 +444,8 @@ function brighten(img){
 /* ---------- starten ---------- */
 function activate(el){
   var k = el.getAttribute('data-k');
-  if (k === 'x0'){ try { Nova.action('autostart'); } catch(e){} return; }
+  if (k === 'x0'){ var ok = false; try { ok = Nova.action('autostart'); } catch(e){}
+    if (!ok) toast('INSTELLING NIET GEVONDEN OP DEZE TV'); return; }
   var t = k[0] === 'a' ? APPS[+k.slice(1)] : INPUTS[+k.slice(1)];
   el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
   if (P === 'android'){

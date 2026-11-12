@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="watcher_label">NOVA Home als startscherm</string>
-    <string name="watcher_desc">Opent NOVA Home als je de tv aanzet of op Home drukt. NOVA kijkt alleen welke app er in beeld komt en leest geen inhoud of wachtwoorden.</string>
-</resources>
