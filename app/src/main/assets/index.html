@@ -240,11 +240,19 @@ var ON_TV = P !== 'preview';
 var stage = document.getElementById('stage');
 
 /* ---------- schalen naar elk scherm ---------- */
+function viewSize(){
+  var w = window.innerWidth, h = window.innerHeight;
+  if (P === 'android'){
+    try { var v = JSON.parse(Nova.getViewport()); if (v.w > 0 && v.h > 0){ w = v.w; h = v.h; } } catch(e){}
+  }
+  return { w: w, h: h };
+}
 function fit(){
-  var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-  stage.style.transform = 'translate(' + ((window.innerWidth - 1920 * s) / 2) + 'px,' + ((window.innerHeight - 1080 * s) / 2) + 'px) scale(' + s + ')';
+  var v = viewSize(), s = Math.min(v.w / 1920, v.h / 1080);
+  stage.style.transform = 'translate(' + ((v.w - 1920 * s) / 2) + 'px,' + ((v.h - 1080 * s) / 2) + 'px) scale(' + s + ')';
 }
 window.addEventListener('resize', fit); fit();
+setTimeout(fit, 300); setTimeout(fit, 1500);
 
 /* ---------- webOS systeemaanroepen ---------- */
 var bridges = [];

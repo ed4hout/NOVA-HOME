@@ -47,8 +47,11 @@ public class MainActivity extends Activity {
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setTextZoom(100);
-        s.setUseWideViewPort(true);
-        s.setLoadWithOverviewMode(true);
+        // Geen automatisch in- of uitzoomen: NOVA schaalt zichzelf naar het scherm.
+        s.setUseWideViewPort(false);
+        s.setLoadWithOverviewMode(false);
+        s.setSupportZoom(false);
+        s.setBuiltInZoomControls(false);
 
         web.setWebViewClient(new WebViewClient());
         web.addJavascriptInterface(new Bridge(), "Nova");
@@ -156,6 +159,15 @@ public class MainActivity extends Activity {
                 }
             } catch (Exception ignored) { }
             return arr.toString();
+        }
+
+        /** Zichtbare afmeting van de weergave in CSS-pixels. */
+        @JavascriptInterface
+        public String getViewport() {
+            float d = getResources().getDisplayMetrics().density;
+            WebView w = web;
+            if (w == null || d <= 0) return "{}";
+            return "{\"w\":" + (w.getWidth() / d) + ",\"h\":" + (w.getHeight() / d) + "}";
         }
 
         /** HDMI- en andere externe ingangen van de tv. */
