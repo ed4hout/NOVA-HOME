@@ -2,30 +2,19 @@
 
 NOVA wordt hier een Android-app. Hij leest zelf je geïnstalleerde apps uit, met hun echte logo's, en ook je HDMI-ingangen.
 
-## 1. APK bouwen
+## 1. APK downloaden
+Bij elke wijziging bouwt GitHub de APK automatisch. De nieuwste versie staat altijd hier:
 
-### Met Android Studio (laptop)
-1. Installeer Android Studio (gratis): https://developer.android.com/studio
-2. Pak deze zip uit. Kies in Android Studio **Open** en selecteer de map `nova-android`.
-3. Wacht tot onderin "Gradle sync" klaar is. De eerste keer downloadt hij een paar onderdelen. Klik op **Install** als hij om een SDK vraagt.
-4. Kies in het menu **Build → Build App Bundle(s) / APK(s) → Build APK(s)**.
-5. Klik in de melding die verschijnt op **locate**. Je APK heet `app-debug.apk`.
+https://github.com/ed4hout/NOVA-HOME/releases/latest/download/nova-home.apk
 
-### Zonder laptop: via GitHub
-1. Maak een gratis GitHub-account en een nieuwe repository aan. Upload de inhoud van `nova-android`, inclusief de verborgen map `.github`.
-2. Onder **Actions** wordt de APK automatisch gebouwd.
-3. Open de laatste run en download onderaan **nova-home-apk**.
+Zelf bouwen kan ook: open deze map in Android Studio en kies **Build → Build APK(s)**.
 
 ## 2. Op de tv zetten
 1. Zet op de tv de ontwikkelaarsopties aan: ga naar **Instellingen → Systeem → Over** en klik 7 keer op **OS-build van Android TV**.
-2. De makkelijkste route is de app **Send files to TV**. Installeer die op je telefoon én op de tv, en stuur de APK naar de tv.
-3. Open de APK op de tv. Sta toe dat die app onbekende apps mag installeren, en kies **Installeren**.
+2. Installeer op de tv de app **Downloader** (van AFTVnews) uit de Play Store.
+3. Typ in Downloader de link hierboven. Sta toe dat Downloader apps mag installeren, en kies **Installeren**.
 
-Alternatief met ADB op een laptop: zet in de ontwikkelaarsopties **USB-foutopsporing** aan en voer uit:
-```
-adb connect <IP-adres van de tv>
-adb install app-debug.apk
-```
+Alternatief: download de APK op je telefoon en stuur hem naar de tv met de app **Send files to TV**.
 
 ## 3. Vooraan zetten
 Ga op het startscherm van Google TV naar **Apps** en houd OK ingedrukt op NOVA Home. Kies **Verplaatsen** en zet hem helemaal vooraan, of zet hem bij je favorieten.
