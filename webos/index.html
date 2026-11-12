@@ -130,6 +130,8 @@
 
   #hint{position:absolute;left:60px;right:60px;bottom:26px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:15px;letter-spacing:3px;color:var(--cy);opacity:.6}
 
+  #auto{cursor:pointer;padding:6px 12px;border:1px solid transparent}
+  #auto.on{border-color:var(--cy);box-shadow:0 0 14px rgba(41,227,255,.4)}
   #toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,30px);opacity:0;padding:16px 34px;border:1px solid var(--cy);
     background:rgba(2,14,22,.92);font-family:var(--mono);font-size:20px;letter-spacing:2px;color:#fff;transition:all .25s;box-shadow:0 0 30px rgba(41,227,255,.35);pointer-events:none;z-index:20}
   #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -141,6 +143,7 @@
   <div id="top">
     <div id="brand">NOVA<small id="ver">HOME INTERFACE v1.1</small></div>
     <div class="spacer"></div>
+    <div class="chip f" id="auto" data-k="x0" style="display:none"></div>
     <div class="chip" id="last">LAATST: —</div>
     <div class="chip"><span class="dot" id="netdot"></span><span id="net">NETWERK ONLINE</span></div>
     <div class="chip" id="topdate">--</div>
@@ -348,15 +351,23 @@ function resolveAndroid(){
   var curKey = cur ? cur.getAttribute('data-k') : null;
   var hd = inp.map(function(x){
     var lab = String(x.label || 'Ingang'), m = /hdmi\s*(\d+)/i.exec(lab), sub = /\((.*?)\)/.exec(lab);
-    return { name: lab.replace(/\s*\(.*?\)\s*/g, ' ').trim(), sub: sub ? sub[1] : '', input: x.id,
+    return { name: lab.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s*\/\s*component/i, '').trim(), sub: sub ? sub[1] : '', input: x.id,
              icon: m ? 'hdmi' : 'tv', n: m ? +m[1] : 100 };
   });
   hd.sort(function(a, b){ return a.n - b.n; });
-  INPUTS = hd.slice(0, 6);
+  INPUTS = hd.slice(0, 5);
+  INPUTS.push({ name: 'Google TV', act: 'googletv', icon: 'globe' });
   INPUTS.push({ name: 'Instell.', act: 'settings', icon: 'gear' });
+  updateAuto();
   buildInputs(); shrink();
   if (curKey && curKey[0] === 'i') focusEl(document.querySelector('[data-k="' + curKey + '"]') || document.querySelector('[data-k="i0"]'));
   log('ingangen: ' + inp.length + ' gevonden');
+}
+function updateAuto(){
+  var el = document.getElementById('auto'), on = false;
+  try { on = Nova.isAutostartOn(); } catch(e){}
+  el.style.display = '';
+  el.innerHTML = '<span class="dot' + (on ? '' : ' off') + '"></span>STARTSCHERM ' + (on ? 'AAN' : 'UIT');
 }
 window.novaResume = function(){ if (P === 'android') resolveAndroid(); };
 function resolveApps(){
@@ -432,7 +443,9 @@ function brighten(img){
 
 /* ---------- starten ---------- */
 function activate(el){
-  var k = el.getAttribute('data-k'), t = k[0] === 'a' ? APPS[+k.slice(1)] : INPUTS[+k.slice(1)];
+  var k = el.getAttribute('data-k');
+  if (k === 'x0'){ try { Nova.action('autostart'); } catch(e){} return; }
+  var t = k[0] === 'a' ? APPS[+k.slice(1)] : INPUTS[+k.slice(1)];
   el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
   if (P === 'android'){
     var ok = false;

@@ -215,11 +215,32 @@ public class MainActivity extends Activity {
                     TvContract.buildChannelUriForPassthroughInput(inputId)));
         }
 
-        /** Vaste acties: "livetv" en "settings". */
+        /** Staat de startscherm-modus (toegankelijkheidsdienst) aan? */
+        @JavascriptInterface
+        public boolean isAutostartOn() {
+            try {
+                String on = Settings.Secure.getString(getContentResolver(),
+                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+                return on != null && on.contains(getPackageName() + "/");
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        /** Vaste acties: "settings", "googletv", "autostart" en "livetv". */
         @JavascriptInterface
         public boolean action(String what) {
             if ("settings".equals(what)) {
                 return start(new Intent(Settings.ACTION_SETTINGS));
+            }
+            if ("googletv".equals(what)) {
+                NovaWatcher.bypass = true;
+                Intent h = new Intent(Intent.ACTION_MAIN);
+                h.addCategory(Intent.CATEGORY_HOME);
+                return start(h);
+            }
+            if ("autostart".equals(what)) {
+                return start(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
             }
             if ("livetv".equals(what)) {
                 // Sony's eigen tv-app; anders het algemene kanalenoverzicht.
