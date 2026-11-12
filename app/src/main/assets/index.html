@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOVA Home</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
+<style>
+  /* ================= BASIS ================= */
+  :root{
+    --cy:#29e3ff;          /* hoofdkleur */
+    --cy-soft:rgba(41,227,255,.22);
+    --cy-faint:rgba(41,227,255,.07);
+    --amber:#ffb547;
+    --bg:#02070d;
+    --txt:#cfefff;
+    --mono:'Share Tech Mono', 'DejaVu Sans Mono', monospace;
+    --sans:'Rajdhani', 'LG Smart UI', 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;color:var(--txt);font-family:var(--sans)}
+  #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;
+    background:
+      radial-gradient(ellipse at 30% 45%, rgba(20,110,150,.28), transparent 55%),
+      radial-gradient(ellipse at 80% 90%, rgba(10,60,100,.25), transparent 60%),
+      linear-gradient(rgba(41,227,255,.035) 1px, transparent 1px) 0 0/48px 48px,
+      linear-gradient(90deg, rgba(41,227,255,.035) 1px, transparent 1px) 0 0/48px 48px,
+      var(--bg);
+  }
+  #stage::after{ /* scanlijn */
+    content:"";position:absolute;left:0;right:0;height:160px;top:-160px;pointer-events:none;
+    background:linear-gradient(to bottom, transparent, rgba(41,227,255,.05), transparent);
+    animation:scan 9s linear infinite;
+  }
+  @keyframes scan{to{transform:translateY(1400px)}}
+  .mono{font-family:var(--mono)}
+
+  /* ================= TOPBALK ================= */
+  #top{position:absolute;left:60px;right:60px;top:34px;height:60px;display:flex;align-items:center;gap:28px;
+    border-bottom:1px solid var(--cy-soft)}
+  #brand{font-size:40px;font-weight:700;letter-spacing:14px;color:#fff;text-shadow:0 0 18px rgba(41,227,255,.7)}
+  #brand small{font-family:var(--mono);font-size:15px;letter-spacing:4px;color:var(--cy);margin-left:14px;font-weight:400;text-shadow:none}
+  #top .spacer{flex:1}
+  .chip{font-family:var(--mono);font-size:17px;letter-spacing:2px;color:var(--cy);display:flex;align-items:center;gap:10px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--cy);box-shadow:0 0 10px var(--cy);animation:pulse 2s ease-in-out infinite}
+  .dot.off{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+  @keyframes pulse{50%{opacity:.35}}
+
+  /* ================= LINKERPANEEL ================= */
+  #left{position:absolute;left:60px;top:130px;width:600px;height:880px}
+  #welcome{font-size:52px;font-weight:700;letter-spacing:4px;color:#fff;line-height:1;text-shadow:0 0 22px rgba(41,227,255,.6)}
+  #greet{white-space:nowrap;font-size:26px;font-weight:500;letter-spacing:3px;color:#e9fbff;margin-top:10px}
+  #greet span{color:var(--cy)}
+  .ph{width:84px;height:84px;border:2px solid var(--cy);border-radius:18px;display:flex;align-items:center;justify-content:center;background:rgba(41,227,255,.08);box-shadow:inset 0 0 18px rgba(41,227,255,.2)}
+  .ph svg{width:34px;height:34px;fill:var(--cy);margin-left:5px}
+  #core{position:relative;width:480px;height:480px;margin:10px auto 0}
+  #core svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .spin{transform-origin:250px 250px;animation:spin 40s linear infinite}
+  .spin.rev{animation-duration:26s;animation-direction:reverse}
+  .spin.fast{animation-duration:12s}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #clock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  #time{font-size:104px;font-weight:600;line-height:1;color:#fff;letter-spacing:4px;text-shadow:0 0 26px rgba(41,227,255,.55)}
+  #secs{font-family:var(--mono);font-size:22px;color:var(--cy);letter-spacing:6px;margin-top:6px}
+  #date{font-family:var(--mono);font-size:17px;letter-spacing:3px;color:var(--txt);margin-top:14px;opacity:.85;text-transform:uppercase}
+
+  .panel{position:relative;border:1px solid var(--cy-soft);background:linear-gradient(135deg, rgba(41,227,255,.06), rgba(41,227,255,.015));padding:20px 24px}
+  .panel::before,.panel::after,.tile::before,.tile::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--cy);pointer-events:none;transition:all .2s}
+  .panel::before,.tile::before{left:-2px;top:-2px;border-right:none;border-bottom:none}
+  .panel::after,.tile::after{right:-2px;bottom:-2px;border-left:none;border-top:none}
+  .ptitle{font-family:var(--mono);font-size:15px;letter-spacing:4px;color:var(--cy);margin-bottom:12px;display:flex;justify-content:space-between}
+
+  #weather{margin-top:14px}
+  #wnow{display:flex;align-items:center;gap:26px}
+  #wtemp{font-size:78px;font-weight:600;color:#fff;line-height:1}
+  #wdesc{font-size:28px;font-weight:600;letter-spacing:2px;text-transform:uppercase}
+  #wmeta{font-family:var(--mono);font-size:16px;color:var(--cy);letter-spacing:2px;margin-top:6px}
+  #wdays{display:flex;gap:14px;margin-top:18px}
+  .wd{flex:1;border-top:1px solid var(--cy-soft);padding-top:10px;font-family:var(--mono);font-size:16px;letter-spacing:2px}
+  .wd b{display:block;color:var(--cy);font-weight:400;margin-bottom:4px}
+  .wd i{font-style:normal;display:block;font-family:var(--sans);font-size:20px;font-weight:600;color:#fff}
+
+  /* ================= RECHTERPANEEL ================= */
+  #right{position:absolute;left:720px;top:130px;width:1140px;height:880px}
+  .sect{font-family:var(--mono);font-size:17px;letter-spacing:5px;color:var(--cy);display:flex;align-items:center;gap:16px;margin:0 0 16px}
+  .sect::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--cy-soft),transparent)}
+  .sect em{font-style:normal;color:var(--txt);opacity:.6}
+
+  #apps{display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+  #inputs{display:grid;grid-template-columns:repeat(7,1fr);gap:16px}
+
+  .tile{position:relative;height:150px;border:1px solid var(--cy-soft);background:linear-gradient(160deg, rgba(41,227,255,.07), rgba(41,227,255,.015));
+    cursor:pointer;outline:none;transition:transform .18s ease, border-color .18s, box-shadow .18s, background .18s;overflow:visible}
+  .tile .inner{position:absolute;inset:0;overflow:hidden;padding:14px 16px;display:flex;flex-direction:column}
+  .tile .code{font-family:var(--mono);font-size:13px;letter-spacing:3px;color:var(--cy);opacity:.7;display:flex;justify-content:space-between}
+  .tile .name{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center;font-size:31px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f2fcff;line-height:1}
+  .tile .bar{height:4px;background:var(--acc,var(--cy));opacity:.75;box-shadow:0 0 10px var(--acc,var(--cy))}
+  .tile .stat{font-family:var(--mono);font-size:12px;letter-spacing:3px;margin-top:7px;opacity:.65}
+  .tile .sweep{position:absolute;top:0;bottom:0;width:60%;left:-70%;background:linear-gradient(90deg,transparent,rgba(41,227,255,.18),transparent);pointer-events:none}
+  .tile.on{transform:scale(1.07);border-color:var(--cy);z-index:5;
+    background:linear-gradient(160deg, rgba(41,227,255,.2), rgba(41,227,255,.04));
+    box-shadow:0 0 0 1px var(--cy), 0 0 28px rgba(41,227,255,.45), inset 0 0 30px rgba(41,227,255,.12)}
+  .tile.on::before,.tile.on::after{width:28px;height:28px;border-width:3px}
+  .tile.on .sweep{animation:sweep 1.6s ease-in-out infinite}
+  .tile.on .code{opacity:1}
+  @keyframes sweep{to{left:120%}}
+  .tile .name img.logo{max-height:84px;max-width:100%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(41,227,255,.25))}
+  .tile.on .name img.logo{filter:drop-shadow(0 0 16px rgba(41,227,255,.6))}
+  .tile.miss{opacity:.38}
+  .tile.go{animation:go .5s ease}
+  @keyframes go{30%{transform:scale(.96);box-shadow:0 0 60px rgba(41,227,255,.9)}}
+
+  #inputs .tile{height:118px}
+  #inputs .inner{align-items:center;justify-content:center;gap:8px;padding:10px}
+  #inputs svg{width:42px;height:42px;stroke:var(--cy);fill:none;stroke-width:2}
+  #inputs .lbl{max-width:100%;white-space:nowrap;overflow:hidden;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+
+  #log{margin-top:30px;height:182px}
+  #loglines{font-family:var(--mono);font-size:17px;line-height:27px;letter-spacing:1px;color:var(--txt)}
+  #loglines div{opacity:.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #loglines div:last-child{opacity:1;color:#fff}
+  #loglines div:last-child::after{content:"_";color:var(--cy);animation:pulse 1s steps(1) infinite}
+
+  #hint{position:absolute;left:60px;right:60px;bottom:26px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:15px;letter-spacing:3px;color:var(--cy);opacity:.6}
+
+  #toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,30px);opacity:0;padding:16px 34px;border:1px solid var(--cy);
+    background:rgba(2,14,22,.92);font-family:var(--mono);font-size:20px;letter-spacing:2px;color:#fff;transition:all .25s;box-shadow:0 0 30px rgba(41,227,255,.35);pointer-events:none;z-index:20}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div id="top">
+    <div id="brand">NOVA<small>HOME INTERFACE v1.0</small></div>
+    <div class="spacer"></div>
+    <div class="chip" id="last">LAATST: —</div>
+    <div class="chip"><span class="dot" id="netdot"></span><span id="net">NETWERK ONLINE</span></div>
+    <div class="chip" id="topdate">--</div>
+  </div>
+
+  <!-- LINKS: klok + weer -->
+  <div id="left">
+    <div id="welcome">Welkom, Edwin.</div>
+    <div id="greet">Goedenavond. <span>Alle systemen gereed.</span></div>
+    <div id="core">
+      <svg viewBox="0 0 500 500">
+        <defs>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(41,227,255,.18)"/>
+            <stop offset="70%" stop-color="rgba(41,227,255,.03)"/>
+            <stop offset="100%" stop-color="rgba(41,227,255,0)"/>
+          </radialGradient>
+        </defs>
+        <circle cx="250" cy="250" r="245" fill="url(#glow)"/>
+        <g class="spin"><circle cx="250" cy="250" r="238" fill="none" stroke="rgba(41,227,255,.35)" stroke-width="2" stroke-dasharray="4 10"/></g>
+        <g class="spin rev"><circle cx="250" cy="250" r="222" fill="none" stroke="rgba(41,227,255,.55)" stroke-width="6" stroke-dasharray="120 40 30 40"/></g>
+        <g id="ticks"></g>
+        <!-- secondenring -->
+        <circle cx="250" cy="250" r="186" fill="none" stroke="rgba(41,227,255,.12)" stroke-width="8"/>
+        <circle id="secarc" cx="250" cy="250" r="186" fill="none" stroke="#29e3ff" stroke-width="8" stroke-linecap="round"
+                transform="rotate(-90 250 250)" stroke-dasharray="1168.67" stroke-dashoffset="1168.67" style="filter:drop-shadow(0 0 6px #29e3ff)"/>
+        <g class="spin fast"><circle cx="250" cy="250" r="166" fill="none" stroke="rgba(255,181,71,.6)" stroke-width="2" stroke-dasharray="60 300"/></g>
+        <circle cx="250" cy="250" r="156" fill="none" stroke="rgba(41,227,255,.25)" stroke-width="1"/>
+      </svg>
+      <div id="clock">
+        <div id="time">--:--</div>
+        <div id="secs">:--</div>
+        <div id="date">--</div>
+      </div>
+    </div>
+
+    <div class="panel" id="weather">
+      <div class="ptitle"><span>ATMOSFEER // <span id="wplace">--</span></span><span id="wupd">--</span></div>
+      <div id="wnow">
+        <div id="wtemp">--°</div>
+        <div>
+          <div id="wdesc">laden…</div>
+          <div id="wmeta">WIND -- KM/U · VOCHT --%</div>
+        </div>
+      </div>
+      <div id="wdays"></div>
+    </div>
+  </div>
+
+  <!-- RECHTS: apps, ingangen, log -->
+  <div id="right">
+    <div class="sect">STREAMING <em id="appcount">// --</em></div>
+    <div id="apps"></div>
+
+    <div class="sect" style="margin-top:34px">INGANGEN &amp; SYSTEEM</div>
+    <div id="inputs"></div>
+
+    <div class="panel" id="log">
+      <div class="ptitle"><span>SYSTEEMLOG</span><span id="uptime">SESSIE 00:00</span></div>
+      <div id="loglines"></div>
+    </div>
+  </div>
+
+  <div id="hint"><span>▲ ▼ ◀ ▶  NAVIGEREN   ·   OK  STARTEN</span><span id="mode">--</span></div>
+  <div id="toast"></div>
+</div>
+
+<script>
+/* =====================================================================
+   INSTELLINGEN — pas hier aan wat je wilt
+   ===================================================================== */
+var NAAM = 'Edwin';                                        // naam in de begroeting
+var PLAATS = { naam: 'De Bilt', lat: 52.10, lon: 5.18 };   // jouw woonplaats voor het weer
+
+// id = app-ID op LG (webOS), pkg = pakketnaam op Google TV.
+// match = naam waarop de app automatisch wordt opgezocht als het ID niet klopt.
+var APPS = [
+  { name: 'Netflix',      id: 'netflix',                    pkg: 'com.netflix.ninja',                     match: 'netflix',      acc: '#e50914' },
+  { name: 'YouTube',      id: 'youtube.leanback.v4',        pkg: 'com.google.android.youtube.tv',         match: 'youtube',      acc: '#ff2b2b' },
+  { name: 'Prime Video',  id: 'amazon',                     pkg: 'com.amazon.amazonvideo.livingroom',     match: 'prime video',  acc: '#00a8e1' },
+  { name: 'Disney+',      id: 'com.disney.disneyplus-prod', pkg: 'com.disney.disneyplus',                 match: 'disney',       acc: '#2b7cff' },
+  { name: 'Videoland',    id: '',                           pkg: '',                                      match: 'videoland',    acc: '#ff2d6f' },
+  { name: 'NPO Start',    id: '',                           pkg: '',                                      match: 'npo',          acc: '#ff7a00' },
+  { name: 'HBO Max',      id: '',                           pkg: '',                                      match: 'max',          acc: '#8a3dff' },
+  { name: 'SkyShowtime',  id: '',                           pkg: '',                                      match: 'skyshowtime',  acc: '#3d7bff' },
+  { name: 'Apple TV',     id: 'com.apple.appletv',          pkg: '',                                      match: 'apple tv',     acc: '#d9d9d9' },
+  { name: 'Spotify',      id: 'spotify-beehive',            pkg: 'com.spotify.tv.android',                match: 'spotify',      acc: '#1ed760' }
+];
+
+// Op Google TV leest NOVA de HDMI-ingangen zelf uit; deze lijst geldt voor LG.
+var INPUTS = [
+  { name: 'Live TV',  id: 'com.webos.app.livetv',  icon: 'tv' },
+  { name: 'HDMI 1',   id: 'com.webos.app.hdmi1',   icon: 'hdmi' },
+  { name: 'HDMI 2',   id: 'com.webos.app.hdmi2',   icon: 'hdmi' },
+  { name: 'HDMI 3',   id: 'com.webos.app.hdmi3',   icon: 'hdmi' },
+  { name: 'HDMI 4',   id: 'com.webos.app.hdmi4',   icon: 'hdmi' },
+  { name: 'Browser',  id: 'com.webos.app.browser', icon: 'globe' },
+  { name: 'Instell.', id: 'com.palm.app.settings', icon: 'gear' }
+];
+/* ===================================================================== */
+
+var P = window.Nova ? 'android' : (typeof window.PalmServiceBridge !== 'undefined' ? 'webos' : 'preview');
+var ON_TV = P !== 'preview';
+var stage = document.getElementById('stage');
+
+/* ---------- schalen naar elk scherm ---------- */
+function fit(){
+  var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  stage.style.transform = 'translate(' + ((window.innerWidth - 1920 * s) / 2) + 'px,' + ((window.innerHeight - 1080 * s) / 2) + 'px) scale(' + s + ')';
+}
+window.addEventListener('resize', fit); fit();
+
+/* ---------- webOS systeemaanroepen ---------- */
+var bridges = [];
+function luna(uri, params){
+  return new Promise(function(res, rej){
+    if (P !== 'webos') { rej(new Error('geen webOS')); return; }
+    var b = new PalmServiceBridge(); bridges.push(b);
+    b.onservicecallback = function(msg){
+      bridges.splice(bridges.indexOf(b), 1);
+      var r = {}; try { r = JSON.parse(msg); } catch(e){}
+      if (r.returnValue === false) rej(r); else res(r);
+    };
+    b.call(uri, JSON.stringify(params || {}));
+  });
+}
+
+/* ---------- opslag (laatst gestart) ---------- */
+function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch(e){ return null; } }
+
+/* ---------- log & toast ---------- */
+var lines = [];
+function log(t){
+  var d = new Date(), ts = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  lines.push('[' + ts + '] ' + t); if (lines.length > 5) lines.shift();
+  document.getElementById('loglines').innerHTML = lines.map(function(l){ return '<div>' + esc(l) + '</div>'; }).join('');
+}
+var toastT;
+function toast(t){
+  var el = document.getElementById('toast'); el.textContent = t; el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(function(){ el.classList.remove('show'); }, 2600);
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function pad(n){ return (n < 10 ? '0' : '') + n; }
+
+/* ---------- iconen ---------- */
+var ICONS = {
+  tv:    '<svg viewBox="0 0 48 48"><rect x="5" y="9" width="38" height="25" rx="2"/><path d="M17 41h14M24 34v7"/></svg>',
+  hdmi:  '<svg viewBox="0 0 48 48"><path d="M6 16h36v9l-5 7H11l-5-7z"/><path d="M14 22h20"/></svg>',
+  globe: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><path d="M7 24h34M24 7c6 6 6 28 0 34M24 7c-6 6-6 28 0 34"/></svg>',
+  gear:  '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="6"/><path d="M24 6v6M24 36v6M6 24h6M36 24h6M11.3 11.3l4.2 4.2M32.5 32.5l4.2 4.2M11.3 36.7l4.2-4.2M32.5 15.5l4.2-4.2"/></svg>'
+};
+
+/* ---------- tegels bouwen ---------- */
+function shrink(){
+  document.querySelectorAll('.tile .name, .tile .lbl').forEach(function(n){
+    var fs = parseFloat(getComputedStyle(n).fontSize);
+    while (n.scrollWidth > n.clientWidth + 1 && fs > 16){ fs -= 1; n.style.fontSize = fs + 'px'; }
+  });
+}
+function build(){
+  var a = document.getElementById('apps');
+  a.innerHTML = APPS.map(function(t, i){
+    return '<div class="tile f" data-k="a' + i + '" style="--acc:' + t.acc + '"><div class="inner">' +
+      '<div class="code"><span>STR-' + pad(i + 1) + '</span><span>◆</span></div>' +
+      '<div class="name">' + esc(t.name) + '</div>' +
+      '<div class="bar"></div><div class="stat" id="st' + i + '">' + (t.id ? 'GEREED' : 'ZOEKEN…') + '</div>' +
+      '<div class="sweep"></div></div></div>';
+  }).join('');
+  document.getElementById('appcount').textContent = '// ' + APPS.length + ' KANALEN';
+
+  buildInputs();
+}
+function buildInputs(){
+  var p = document.getElementById('inputs');
+  p.style.gridTemplateColumns = 'repeat(' + Math.max(INPUTS.length, 5) + ',1fr)';
+  p.innerHTML = INPUTS.map(function(t, i){
+    return '<div class="tile f" data-k="i' + i + '"><div class="inner">' + ICONS[t.icon] +
+      '<div class="lbl">' + esc(t.name) + '</div><div class="sweep"></div></div></div>';
+  }).join('');
+}
+
+/* ---------- geïnstalleerde apps opzoeken ---------- */
+function nameMatch(t, label){
+  var l = (label || '').toLowerCase();
+  return t.match === 'max' ? (l === 'max' || l === 'hbo max') : l.indexOf(t.match) > -1;
+}
+function resolveAndroid(){
+  var list = [], inp = [];
+  try { list = JSON.parse(Nova.getApps()); } catch(e){}
+  APPS.forEach(function(t, i){
+    var hit = list.filter(function(x){ return t.pkg && x.pkg === t.pkg; })[0] ||
+              list.filter(function(x){ return nameMatch(t, x.label); })[0];
+    var st = document.getElementById('st' + i), tile = document.querySelector('[data-k="a' + i + '"]');
+    if (hit){ t.pkg = hit.pkg; st.textContent = 'GEREED'; tile.classList.remove('miss'); setLogo(i, hit.icon, t.name); }
+    else { st.textContent = 'NIET GEÏNSTALLEERD'; tile.classList.add('miss'); }
+  });
+  log('apps: ' + list.length + ' gevonden, logo\'s geladen');
+  try { inp = JSON.parse(Nova.getInputs()); } catch(e){}
+  var curKey = cur ? cur.getAttribute('data-k') : null;
+  INPUTS = [{ name: 'Live TV', act: 'livetv', icon: 'tv' }];
+  inp.slice(0, 5).forEach(function(x){ INPUTS.push({ name: x.label, input: x.id, icon: 'hdmi' }); });
+  INPUTS.push({ name: 'Instell.', act: 'settings', icon: 'gear' });
+  buildInputs(); shrink();
+  if (curKey && curKey[0] === 'i') focusEl(document.querySelector('[data-k="' + curKey + '"]') || document.querySelector('[data-k="i0"]'));
+  log('ingangen: ' + inp.length + ' gevonden');
+}
+window.novaResume = function(){ if (P === 'android') resolveAndroid(); };
+function resolveApps(){
+  if (P === 'android'){ resolveAndroid(); return; }
+  luna('luna://com.webos.applicationManager/listLaunchPoints', {}).then(function(r){
+    var lp = r.launchPoints || [];
+    APPS.forEach(function(t, i){
+      var byId = lp.filter(function(x){ return x.id === t.id; })[0];
+      var byName = lp.filter(function(x){
+        var ti = (x.title || '').toLowerCase();
+        return t.match === 'max' ? (ti === 'max' || ti === 'hbo max') : ti.indexOf(t.match) > -1;
+      })[0];
+      var hit = byId || byName;
+      var st = document.getElementById('st' + i), tile = document.querySelector('[data-k="a' + i + '"]');
+      if (hit){ t.id = hit.id; st.textContent = 'GEREED'; tile.classList.remove('miss');
+        setLogo(i, hit.mediumLargeIcon || hit.largeIcon || hit.icon, t.name); }
+      else { st.textContent = 'NIET GEÏNSTALLEERD'; tile.classList.add('miss'); }
+    });
+    log('apps: ' + lp.length + ' gevonden, tegels gekoppeld');
+  }).catch(function(){
+    APPS.forEach(function(t, i){ if (!t.id) document.getElementById('st' + i).textContent = ON_TV ? 'ID ONBEKEND' : t.name.toUpperCase(); });
+    if (ON_TV) log('apps: lijst niet beschikbaar, standaard-ID\'s gebruikt');
+  });
+}
+
+/* ---------- logo van de app zelf (komt van de tv) ---------- */
+function setLogo(i, src, name){
+  if (!src) return;
+  var tile = document.querySelector('[data-k="a' + i + '"]'), n = tile.querySelector('.name');
+  var img = new Image(); img.className = 'logo'; img.alt = name;
+  img.onload = function(){ n.innerHTML = ''; n.style.fontSize = ''; n.appendChild(img);
+    document.getElementById('st' + i).textContent = name.toUpperCase() + ' · GEREED'; };
+  img.src = /^(data:|file:|https?:)/.test(src) ? src : 'file://' + src;
+}
+
+/* ---------- starten ---------- */
+function activate(el){
+  var k = el.getAttribute('data-k'), t = k[0] === 'a' ? APPS[+k.slice(1)] : INPUTS[+k.slice(1)];
+  el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+  if (P === 'android'){
+    var ok = false;
+    try { ok = t.pkg ? Nova.launch(t.pkg) : t.input ? Nova.openInput(t.input) : t.act ? Nova.action(t.act) : false; } catch(e){}
+    if (ok){ log('start ' + t.name); setLast(t.name); }
+    else { toast('KON ' + t.name.toUpperCase() + ' NIET STARTEN'); log('fout: ' + t.name + ' start niet'); }
+    return;
+  }
+  if (!ON_TV){ log('start ' + t.name + ' (voorbeeld)'); toast(t.name.toUpperCase() + ' — START ALLEEN OP DE TV'); setLast(t.name); return; }
+  if (!t.id){ toast('APP-ID VOOR ' + t.name.toUpperCase() + ' ONBEKEND'); log('fout: geen app-ID voor ' + t.name); return; }
+  log('start ' + t.name + ' [' + t.id + ']');
+  luna('luna://com.webos.applicationManager/launch', { id: t.id })
+    .then(function(){ setLast(t.name); })
+    .catch(function(){ toast('KON ' + t.name.toUpperCase() + ' NIET STARTEN'); log('fout: ' + t.name + ' start niet'); });
+}
+function setLast(n){ store('nova-last', n); document.getElementById('last').textContent = 'LAATST: ' + n.toUpperCase(); }
+
+/* ---------- navigatie met afstandsbediening ---------- */
+var cur = null;
+function focusEl(el){
+  if (!el) return;
+  if (cur) cur.classList.remove('on');
+  cur = el; el.classList.add('on');
+  store('nova-focus', el.getAttribute('data-k'));
+}
+function center(el){ var r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+function move(dir){
+  if (!cur){ focusEl(document.querySelector('.f')); return; }
+  var c = center(cur), best = null, bd = Infinity;
+  document.querySelectorAll('.f').forEach(function(e){
+    if (e === cur) return;
+    var p = center(e), dx = p.x - c.x, dy = p.y - c.y, main, side;
+    if (dir === 'L'){ if (dx > -5) return; main = -dx; side = Math.abs(dy); }
+    if (dir === 'R'){ if (dx < 5)  return; main = dx;  side = Math.abs(dy); }
+    if (dir === 'U'){ if (dy > -5) return; main = -dy; side = Math.abs(dx); }
+    if (dir === 'D'){ if (dy < 5)  return; main = dy;  side = Math.abs(dx); }
+    var d = main + side * 2.2;
+    if (d < bd){ bd = d; best = e; }
+  });
+  if (best) focusEl(best);
+}
+document.addEventListener('keydown', function(e){
+  var k = e.keyCode;
+  if (k === 37) move('L'); else if (k === 38) move('U'); else if (k === 39) move('R'); else if (k === 40) move('D');
+  else if ((k === 13 || k === 23) && cur) activate(cur);
+  else if (k === 461 || k === 8) { e.preventDefault(); } /* Terug-knop: blijf op dit scherm */
+  else return;
+  e.preventDefault();
+});
+document.addEventListener('mouseover', function(e){ var t = e.target.closest && e.target.closest('.f'); if (t && t !== cur) focusEl(t); });
+document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('.f'); if (t){ focusEl(t); activate(t); } });
+
+/* ---------- klok ---------- */
+var DAGEN = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+var MAANDEN = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+var start = Date.now();
+function tick(){
+  var d = new Date(), h = d.getHours();
+  document.getElementById('time').textContent = pad(h) + ':' + pad(d.getMinutes());
+  document.getElementById('secs').textContent = ':' + pad(d.getSeconds());
+  document.getElementById('date').textContent = DAGEN[d.getDay()] + ' ' + d.getDate() + ' ' + MAANDEN[d.getMonth()];
+  document.getElementById('topdate').textContent = pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear();
+  document.getElementById('secarc').setAttribute('stroke-dashoffset', 1168.67 * (1 - (d.getSeconds() + d.getMilliseconds() / 1000) / 60));
+  var g = h < 6 ? 'Goedenacht' : h < 12 ? 'Goedemorgen' : h < 18 ? 'Goedemiddag' : 'Goedenavond';
+  document.getElementById('greet').innerHTML = g + '. <span>Alle systemen gereed.</span>';
+  var up = Math.floor((Date.now() - start) / 1000);
+  document.getElementById('uptime').textContent = 'SESSIE ' + pad(Math.floor(up / 3600)) + ':' + pad(Math.floor(up / 60) % 60);
+  var on = navigator.onLine !== false;
+  document.getElementById('net').textContent = on ? 'NETWERK ONLINE' : 'GEEN NETWERK';
+  document.getElementById('netdot').className = 'dot' + (on ? '' : ' off');
+}
+function buildTicks(){
+  var g = '', i, a, r1, r2;
+  for (i = 0; i < 60; i++){
+    a = i * 6 * Math.PI / 180; r1 = 200; r2 = i % 5 ? 206 : 212;
+    g += '<line x1="' + (250 + r1 * Math.sin(a)).toFixed(1) + '" y1="' + (250 - r1 * Math.cos(a)).toFixed(1) +
+         '" x2="' + (250 + r2 * Math.sin(a)).toFixed(1) + '" y2="' + (250 - r2 * Math.cos(a)).toFixed(1) +
+         '" stroke="rgba(41,227,255,' + (i % 5 ? .35 : .9) + ')" stroke-width="' + (i % 5 ? 1 : 2.5) + '"/>';
+  }
+  document.getElementById('ticks').innerHTML = g;
+}
+
+/* ---------- weer (Open-Meteo, geen sleutel nodig) ---------- */
+function wtxt(c){
+  if (c === 0) return 'Helder'; if (c <= 2) return 'Licht bewolkt'; if (c === 3) return 'Bewolkt';
+  if (c <= 48) return 'Mist'; if (c <= 57) return 'Motregen'; if (c <= 67) return 'Regen';
+  if (c <= 77) return 'Sneeuw'; if (c <= 82) return 'Buien'; if (c <= 86) return 'Sneeuwbuien'; return 'Onweer';
+}
+function showWeather(w, demo){
+  var c = w.current, dl = w.daily;
+  document.getElementById('wtemp').textContent = Math.round(c.temperature_2m) + '°';
+  document.getElementById('wdesc').textContent = wtxt(c.weather_code);
+  document.getElementById('wmeta').textContent = 'WIND ' + Math.round(c.wind_speed_10m) + ' KM/U · VOCHT ' + Math.round(c.relative_humidity_2m) + '%';
+  var h = '';
+  for (var i = 1; i < 4; i++){
+    var d = new Date(dl.time[i] + 'T12:00:00');
+    h += '<div class="wd"><b>' + DAGEN[d.getDay()].slice(0, 2).toUpperCase() + '</b><i>' + Math.round(dl.temperature_2m_max[i]) + '° / ' +
+         Math.round(dl.temperature_2m_min[i]) + '°</i>' + wtxt(dl.weather_code[i]).toUpperCase() + '</div>';
+  }
+  document.getElementById('wdays').innerHTML = h;
+  var n = new Date();
+  document.getElementById('wupd').textContent = demo ? 'DEMO' : 'UPD ' + pad(n.getHours()) + ':' + pad(n.getMinutes());
+}
+function demoWeather(){
+  var t = [], n = new Date();
+  for (var i = 0; i < 4; i++){ var d = new Date(n.getTime() + i * 864e5); t.push(d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())); }
+  return { current: { temperature_2m: 8, weather_code: 3, wind_speed_10m: 17, relative_humidity_2m: 84 },
+           daily: { time: t, temperature_2m_max: [9, 10, 8, 11], temperature_2m_min: [4, 5, 3, 6], weather_code: [3, 61, 2, 80] } };
+}
+function loadWeather(){
+  document.getElementById('wplace').textContent = PLAATS.naam.toUpperCase();
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + PLAATS.lat + '&longitude=' + PLAATS.lon +
+    '&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m' +
+    '&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4';
+  fetch(url).then(function(r){ return r.json(); }).then(function(w){
+    showWeather(w, false); log('weer: ' + PLAATS.naam + ' bijgewerkt, ' + Math.round(w.current.temperature_2m) + '°');
+  }).catch(function(){
+    if (!ON_TV){ showWeather(demoWeather(), true); log('weer: voorbeeldgegevens getoond'); }
+    else { document.getElementById('wdesc').textContent = 'Geen verbinding'; log('weer: geen verbinding, nieuwe poging over 10 min'); }
+  });
+}
+
+/* ---------- opstarten ---------- */
+build(); buildTicks(); tick(); shrink();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ document.querySelectorAll('.tile .name, .tile .lbl').forEach(function(n){ n.style.fontSize=''; }); shrink(); });
+setInterval(tick, 250);
+document.getElementById('mode').textContent = P === 'android' ? 'GOOGLE TV // LIVE' : P === 'webos' ? 'WEBOS // LIVE' : 'VOORBEELD · APP-LOGO\'S VERSCHIJNEN OP DE TV';
+var last = store('nova-last'); if (last) document.getElementById('last').textContent = 'LAATST: ' + last.toUpperCase();
+var lastFocus = store('nova-focus');
+focusEl(document.querySelector('[data-k="' + (lastFocus || 'a0') + '"]') || document.querySelector('.f'));
+document.getElementById('welcome').textContent = 'Welkom, ' + NAAM + '.';
+log('NOVA opgestart — welkom thuis, ' + NAAM);
+if (!ON_TV) APPS.forEach(function(t, i){
+  var n = document.querySelector('[data-k="a' + i + '"] .name');
+  n.innerHTML = '<div class="ph"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></div>';
+  document.getElementById('st' + i).textContent = t.name.toUpperCase();
+});
+log('modules: klok, atmosfeer, streaming, ingangen');
+resolveApps();
+loadWeather(); setInterval(loadWeather, 10 * 60 * 1000);
+</script>
+</body>
+</html>
