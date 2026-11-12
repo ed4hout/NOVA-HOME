@@ -355,7 +355,7 @@ function resolveAndroid(){
              icon: m ? 'hdmi' : 'tv', n: m ? +m[1] : 100 };
   });
   hd.sort(function(a, b){ return a.n - b.n; });
-  INPUTS = hd.slice(0, 5);
+  INPUTS = hd.filter(function(x){ return x.n < 100; }).slice(0, 5);   /* alleen HDMI-poorten */
   INPUTS.push({ name: 'Google TV', act: 'googletv', icon: 'globe' });
   INPUTS.push({ name: 'Instell.', act: 'settings', icon: 'gear' });
   updateAuto();
