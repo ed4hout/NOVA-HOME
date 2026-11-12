@@ -130,6 +130,8 @@
 
   #hint{position:absolute;left:60px;right:60px;bottom:26px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:15px;letter-spacing:3px;color:var(--cy);opacity:.6}
 
+  #upd{cursor:pointer;padding:6px 12px;border:1px solid var(--amber);color:var(--amber)}
+  #upd.on{box-shadow:0 0 14px rgba(255,181,71,.6)}
   #auto{cursor:pointer;padding:6px 12px;border:1px solid transparent}
   #auto.on{border-color:var(--cy);box-shadow:0 0 14px rgba(41,227,255,.4)}
   #toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,30px);opacity:0;padding:16px 34px;border:1px solid var(--cy);
@@ -144,6 +146,7 @@
     <div id="brand">NOVA<small id="ver">HOME INTERFACE v1.1</small></div>
     <div class="spacer"></div>
     <div class="chip f" id="auto" data-k="x0" style="display:none"></div>
+    <div class="chip f" id="upd" data-k="x1" style="display:none"></div>
     <div class="chip" id="last">LAATST: —</div>
     <div class="chip"><span class="dot" id="netdot"></span><span id="net">NETWERK ONLINE</span></div>
     <div class="chip" id="topdate">--</div>
@@ -369,6 +372,30 @@ function updateAuto(){
   el.style.display = '';
   el.innerHTML = '<span class="dot' + (on ? '' : ' off') + '"></span>STARTSCHERM ' + (on ? 'AAN' : 'UIT');
 }
+/* ---------- automatisch bijwerken (Google TV) ---------- */
+var REPO = 'ed4hout/NOVA-HOME', upd = null, updAsked = false;
+function checkUpdate(auto){
+  if (P !== 'android') return;
+  var mine = 0; try { mine = Nova.getVersionCode(); } catch(e){ return; }
+  fetch('https://api.github.com/repos/' + REPO + '/releases/latest').then(function(r){ return r.json(); }).then(function(d){
+    var n = parseInt(String(d.tag_name || '').replace(/\D/g, ''), 10) || 0;
+    var a = (d.assets || []).filter(function(x){ return /\.apk$/i.test(x.name); })[0];
+    if (n > mine && a){
+      upd = { n: n, url: a.browser_download_url };
+      var el = document.getElementById('upd'); el.style.display = ''; el.textContent = '⬆ UPDATE BESCHIKBAAR';
+      if (auto && !updAsked){ updAsked = true; doUpdate(); }
+    }
+  }).catch(function(){});
+}
+function doUpdate(){
+  if (!upd) return;
+  var ok = false; try { ok = Nova.installUpdate(upd.url); } catch(e){}
+  toast(ok ? 'UPDATE WORDT GEDOWNLOAD…' : 'GEEF NOVA TOESTEMMING OM APPS TE INSTALLEREN');
+}
+window.novaUpdateFailed = function(){ toast('UPDATE MISLUKT — PROBEER LATER OPNIEUW'); };
+setTimeout(function(){ checkUpdate(true); }, 4000);
+setInterval(function(){ checkUpdate(false); }, 6 * 3600 * 1000);
+
 window.novaResume = function(){ if (P === 'android') resolveAndroid(); };
 function resolveApps(){
   if (P === 'android'){ resolveAndroid(); return; }
@@ -444,6 +471,7 @@ function brighten(img){
 /* ---------- starten ---------- */
 function activate(el){
   var k = el.getAttribute('data-k');
+  if (k === 'x1'){ doUpdate(); return; }
   if (k === 'x0'){ var ok = false; try { ok = Nova.action('autostart'); } catch(e){}
     if (!ok) toast('INSTELLING NIET GEVONDEN OP DEZE TV'); return; }
   var t = k[0] === 'a' ? APPS[+k.slice(1)] : INPUTS[+k.slice(1)];

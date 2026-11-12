@@ -1,6 +1,11 @@
 package nl.nova.home;
 
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.os.Environment;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -112,6 +117,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void js(final String code) {
+        final WebView w = web;
+        if (w == null) return;
+        w.post(new Runnable() {
+            @Override public void run() { w.evaluateJavascript(code, null); }
+        });
+    }
+
     private static String toDataUri(Drawable d, int maxW, int maxH) {
         if (d == null) return null;
         int w = d.getIntrinsicWidth();
@@ -168,6 +181,49 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String getVersion() {
             return BuildConfig.VERSION_NAME;
+        }
+
+        /** Interne versienummer (= bouwnummer op GitHub). */
+        @JavascriptInterface
+        public int getVersionCode() {
+            return BuildConfig.VERSION_CODE;
+        }
+
+        /** Download een nieuwe versie en open het installatiescherm. */
+        @JavascriptInterface
+        public boolean installUpdate(String url) {
+            if (url == null || url.isEmpty()) return false;
+            if (Build.VERSION.SDK_INT >= 26 && !getPackageManager().canRequestPackageInstalls()) {
+                start(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                        Uri.parse("package:" + getPackageName())));
+                return false;
+            }
+            try {
+                final DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                if (dm == null) return false;
+                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url));
+                r.setTitle("NOVA Home update");
+                r.setMimeType("application/vnd.android.package-archive");
+                r.setDestinationInExternalFilesDir(MainActivity.this, Environment.DIRECTORY_DOWNLOADS,
+                        "nova-update-" + System.currentTimeMillis() + ".apk");
+                final long id = dm.enqueue(r);
+                registerReceiver(new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context c, Intent i) {
+                        if (i.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) != id) return;
+                        try { unregisterReceiver(this); } catch (Exception ignored) { }
+                        Uri apk = dm.getUriForDownloadedFile(id);
+                        if (apk == null) { js("window.novaUpdateFailed && novaUpdateFailed()"); return; }
+                        Intent in = new Intent(Intent.ACTION_VIEW);
+                        in.setDataAndType(apk, "application/vnd.android.package-archive");
+                        in.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        if (!start(in)) js("window.novaUpdateFailed && novaUpdateFailed()");
+                    }
+                }, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }
 
         /** Zichtbare afmeting van de weergave in CSS-pixels. */
