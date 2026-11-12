@@ -1,7 +1,10 @@
 name: APK bouwen
 on:
   push:
+    branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -11,13 +14,20 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Android SDK controleren
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "sdk.dir=$ANDROID_HOME" > local.properties
+      - name: Android SDK instellen
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
       - name: APK bouwen
-        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon --stacktrace
+        run: |
+          chmod +x gradlew && ./gradlew assembleDebug --no-daemon --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk nova-home.apk
       - uses: actions/upload-artifact@v4
         with:
           name: nova-home-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: nova-home.apk
+      - name: Release publiceren
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: NOVA Home build ${{ github.run_number }}
+          files: nova-home.apk
+          make_latest: true
