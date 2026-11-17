@@ -1,4 +1,4 @@
-name: APK bouwen
+name: NOVA bouwen
 on:
   push:
     branches: [main]
@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+
+      # ---------- Google TV (Android) ----------
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -20,14 +22,33 @@ jobs:
         run: |
           chmod +x gradlew && ./gradlew assembleDebug --no-daemon --stacktrace
           cp app/build/outputs/apk/debug/app-debug.apk nova-home.apk
+
+      # ---------- LG (webOS) ----------
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+      - name: webOS-app bouwen
+        run: |
+          npm install -g @webos-tools/cli
+          # Altijd dezelfde weergave als de Android-versie
+          cp app/src/main/assets/index.html webos/index.html
+          jq --arg v "1.1.${{ github.run_number }}" '.version = $v' webos/appinfo.json > appinfo.tmp && mv appinfo.tmp webos/appinfo.json
+          mkdir -p ipk && ares-package webos -o ipk --no-minify
+          cp ipk/*.ipk nova-home.ipk
+          ls -la nova-home.ipk
+
       - uses: actions/upload-artifact@v4
         with:
-          name: nova-home-apk
-          path: nova-home.apk
+          name: nova-home
+          path: |
+            nova-home.apk
+            nova-home.ipk
       - name: Release publiceren
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
           name: NOVA Home build ${{ github.run_number }}
-          files: nova-home.apk
+          files: |
+            nova-home.apk
+            nova-home.ipk
           make_latest: true
